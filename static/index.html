@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniDoc Studio - Study Notes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .bg-animated-aurora {
+      background: linear-gradient(-45deg, #ffdcd2, #f5d6f5, #dfd8fa, #ffe8de, #e3eaff);
+      background-size: 400% 400%;
+      animation: auroraFlow 14s ease-in-out infinite;
+    }
+
+    @keyframes auroraFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes floatOrb1 {
+      0%, 100% { transform: translate(0px, 0px) scale(1); }
+      50% { transform: translate(30px, -40px) scale(1.12); }
+    }
+    @keyframes floatOrb2 {
+      0%, 100% { transform: translate(0px, 0px) scale(1); }
+      50% { transform: translate(-35px, 30px) scale(1.09); }
+    }
+
+    .orb-1 { animation: floatOrb1 10s ease-in-out infinite; }
+    .orb-2 { animation: floatOrb2 12s ease-in-out infinite; }
+
+    /* Markdown Screen Styling */
+    .markdown-body h1 { font-size: 1.4rem; font-weight: 700; color: #1e293b; margin-top: 1.25rem; margin-bottom: 0.6rem; }
+    .markdown-body h2 { font-size: 1.2rem; font-weight: 700; color: #334155; margin-top: 1.25rem; margin-bottom: 0.5rem; border-bottom: 2px solid #fed7aa; padding-bottom: 4px; }
+    .markdown-body h3 { font-size: 1.05rem; font-weight: 600; color: #475569; margin-top: 1rem; margin-bottom: 0.4rem; }
+    .markdown-body p { margin-bottom: 0.8rem; line-height: 1.68; color: #334155; }
+    .markdown-body ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.8rem; color: #334155; }
+    .markdown-body ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 0.8rem; color: #334155; }
+    .markdown-body li { margin-bottom: 0.35rem; }
+    .markdown-body hr { border: none; border-top: 1px dashed #fbcfe8; margin: 1.3rem 0; }
+    .markdown-body blockquote { border-left: 4px solid #f472b6; padding-left: 0.85rem; color: #64748b; font-style: italic; margin: 0.85rem 0; background: #fff5f8; padding-top: 4px; padding-bottom: 4px; border-radius: 0 8px 8px 0; }
+    .markdown-body code { background: #fdf2f8; color: #be185d; padding: 0.15rem 0.4rem; border-radius: 0.35rem; font-size: 0.88em; font-weight: 600; }
+
+    /* Tables */
+    .markdown-body table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; border: 1px solid #cbd5e1; }
+    .markdown-body th { background-color: #f8fafc; color: #334155; font-weight: 700; text-align: left; padding: 10px 14px; font-size: 0.88rem; border: 1px solid #cbd5e1; }
+    .markdown-body td { padding: 9px 14px; border: 1px solid #e2e8f0; font-size: 0.88rem; color: #334155; background-color: #ffffff; }
+  </style>
+</head>
+<body class="bg-animated-aurora min-h-screen p-4 md:p-8 relative flex flex-col justify-between overflow-x-hidden">
+
+  <!-- Ambient Glow Orbs -->
+  <div class="fixed top-8 left-16 w-96 h-96 rounded-full blur-[115px] pointer-events-none orb-1" style="background-color: rgba(255, 185, 160, 0.55);"></div>
+  <div class="fixed bottom-12 right-16 w-[440px] h-[440px] rounded-full blur-[135px] pointer-events-none orb-2" style="background-color: rgba(210, 185, 255, 0.55);"></div>
+
+  <div class="max-w-4xl mx-auto w-full relative z-10">
+    
+    <!-- Main Card Container -->
+    <div class="bg-white/90 backdrop-blur-2xl border border-white/95 shadow-[0_25px_60px_rgba(225,175,200,0.38)] rounded-3xl p-6 md:p-10 transition-all text-slate-800">
+      
+      <!-- Brand Header -->
+      <header class="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 border-b border-rose-100/90 gap-4">
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center p-2.5 rounded-2xl bg-gradient-to-br from-[#fedac9] to-[#ded2f9] shadow-sm text-2xl">☕</span>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">OmniDoc Studio</h1>
+          </div>
+          <p class="text-sm text-slate-500 mt-1">Multi-model document intelligence & interactive study suite</p>
+        </div>
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-200/80 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span> Production AI Active
+          </span>
+        </div>
+      </header>
+
+      <form id="ai-form" class="space-y-6">
+        
+        <!-- Controls: AI Tool & Language -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Select AI Engine</label>
+            <select id="provider" class="w-full bg-white border border-rose-200/90 rounded-xl p-3 text-sm font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-[#e4d4f8] focus:border-purple-300 outline-none transition">
+              <option value="gemini-flash">Google Gemini (Gemini Flash - Fast & Smart)</option>
+              <option value="openai">ChatGPT (OpenAI GPT-4o-mini)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Output Language</label>
+            <select id="language" class="w-full bg-white border border-rose-200/90 rounded-xl p-3 text-sm font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-[#e4d4f8] focus:border-purple-300 outline-none transition">
+              <option value="English">English</option>
+              <option value="German">German (Deutsch)</option>
+              <option value="Hindi">Hindi (हिंदी)</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tone & Detail Level -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Tone of Answer</label>
+            <select id="tone" class="w-full bg-white border border-rose-200/90 rounded-xl p-3 text-sm font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-[#e4d4f8] focus:border-purple-300 outline-none transition">
+              <option value="friendly">Friendly & Casual (Like a friend teaching you)</option>
+              <option value="eli10">Super Simple (Explain like I'm 10)</option>
+              <option value="quick">Bullet Points Only (Quick recap)</option>
+              <option value="exam">Exam Prep (Direct Q&A format)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Depth & Length</label>
+            <select id="detail_level" class="w-full bg-white border border-rose-200/90 rounded-xl p-3 text-sm font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-[#e4d4f8] focus:border-purple-300 outline-none transition">
+              <option value="balanced">Standard & Clean (Just right)</option>
+              <option value="quick">Quick Read (1-minute glance)</option>
+              <option value="detailed">In-Depth & Detailed (Step-by-step)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- File Upload Area -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Upload PDF Document</label>
+          <div class="relative border-2 border-dashed border-rose-200 hover:border-purple-300 rounded-2xl p-7 text-center bg-rose-50/30 hover:bg-rose-50/60 transition cursor-pointer flex flex-col items-center justify-center">
+            <input id="pdf_file" type="file" accept="application/pdf" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="displayFileName(this)">
+            <svg class="w-10 h-10 text-rose-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+            <p id="file-label" class="text-sm font-medium text-slate-700">Click or drag & drop lecture PDF here</p>
+            <span class="text-xs text-slate-400 mt-1">Supports standard readable PDF notes, assignments, and slides</span>
+          </div>
+        </div>
+
+        <!-- Task Selection -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Study Task Action</label>
+          <select id="task" class="w-full bg-white border border-rose-200/90 rounded-xl p-3 text-sm font-medium text-slate-700 shadow-sm focus:ring-2 focus:ring-[#e4d4f8] focus:border-purple-300 outline-none transition" onchange="toggleQuestionBox()">
+            <option value="summary">📑 Clear Summary & Key Points</option>
+            <option value="cheat_sheet">⚡ One-Page Cheat Sheet (Formulas, Pinouts & Tables)</option>
+            <option value="mcq">❓ 5 Multiple Choice Quiz Questions (with Answer Key)</option>
+            <option value="flashcards">🧠 Active Recall Flashcards (Q&A)</option>
+            <option value="glossary">💡 Concepts & Technical Glossary (Definition Table)</option>
+            <option value="exam">📝 Practice Exam Questions & Model Answers</option>
+            <option value="eli10">👶 Explain Like I'm 10 (Simplified Breakdown)</option>
+            <option value="qa">💬 Ask a Specific Question</option>
+          </select>
+        </div>
+
+        <!-- Question Box -->
+        <div id="question_container" class="hidden space-y-2">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Your Specific Question</label>
+          <input id="question" type="text" placeholder="Type what you want to extract or understand..." 
+                 class="w-full bg-white border border-rose-200/90 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#e4d4f8] focus:border-purple-300 outline-none shadow-sm transition">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submit_btn" 
+                class="w-full bg-gradient-to-r from-[#fcb192] to-[#cbb4ee] hover:opacity-95 text-slate-800 font-semibold py-3.5 rounded-xl text-sm transition-all shadow-md shadow-rose-200/60 flex justify-center items-center cursor-pointer">
+          Generate Study Notes
+        </button>
+      </form>
+
+      <!-- Output Section -->
+      <div id="output_section" class="mt-8 hidden border-t border-rose-100/90 pt-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">Generated Study Notes</h2>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="copyResponse()" class="text-xs px-3.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition border border-rose-200/80 shadow-sm font-medium">
+              📋 Copy Text
+            </button>
+            <button type="button" onclick="downloadResponse()" class="text-xs px-3.5 py-1.5 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition border border-purple-200/80 shadow-sm font-medium">
+              💾 Download .txt
+            </button>
+            <button type="button" id="pdf_btn" onclick="downloadAsPDF()" class="text-xs px-3.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border border-emerald-200/80 shadow-sm font-medium">
+              📑 Download .pdf
+            </button>
+          </div>
+        </div>
+        <div id="output_box" class="markdown-body p-6 bg-rose-50/20 border border-rose-100/80 rounded-2xl shadow-inner overflow-x-auto text-slate-800"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="text-center text-xs text-slate-500 mt-8 mb-2">
+    OmniDoc Studio • Built with FastAPI & Production AI
+  </footer>
+
+  <script>
+    let rawResponseText = "";
+
+    function displayFileName(input) {
+      const label = document.getElementById("file-label");
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        label.innerText = `Selected: ${file.name} (${sizeMb} MB)`;
+        label.classList.add("text-slate-800", "font-semibold");
+      }
+    }
+
+    function toggleQuestionBox() {
+      const task = document.getElementById("task").value;
+      const questionContainer = document.getElementById("question_container");
+      if (task === "qa") {
+        questionContainer.classList.remove("hidden");
+      } else {
+        questionContainer.classList.add("hidden");
+      }
+    }
+
+    function copyResponse() {
+      if (!rawResponseText) return;
+      navigator.clipboard.writeText(rawResponseText);
+      alert("Notes copied to clipboard!");
+    }
+
+    function downloadResponse() {
+      if (!rawResponseText) return;
+      const blob = new Blob([rawResponseText], { type: "text/plain" });
+      const anchor = document.createElement("a");
+      anchor.download = "Study_Notes.txt";
+      anchor.href = window.URL.createObjectURL(blob);
+      anchor.click();
+    }
+
+    // Direct Python Backend PDF Generator (No browser URL or print dialog!)
+    async function downloadAsPDF() {
+      if (!rawResponseText) {
+        alert("No notes to export yet! Please generate notes first.");
+        return;
+      }
+
+      const pdfBtn = document.getElementById("pdf_btn");
+      pdfBtn.disabled = true;
+      pdfBtn.innerText = "Building PDF...";
+
+      try {
+        const response = await fetch("/api/export-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ markdown_text: rawResponseText })
+        });
+
+        if (!response.ok) {
+          alert("Failed to export PDF from server.");
+          return;
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "OmniDoc_Study_Notes.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        alert("Download error: " + err.message);
+      } finally {
+        pdfBtn.disabled = false;
+        pdfBtn.innerText = "📑 Download .pdf";
+      }
+    }
+
+    document.getElementById("ai-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("submit_btn");
+      const outputSection = document.getElementById("output_section");
+      const outputBox = document.getElementById("output_box");
+
+      const fileInput = document.getElementById("pdf_file");
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Please select a PDF file first.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const provider = document.getElementById("provider") ? document.getElementById("provider").value : "gemini-flash";
+      const task = document.getElementById("task").value;
+      const tone = document.getElementById("tone").value;
+      const detail_level = document.getElementById("detail_level").value;
+      const language = document.getElementById("language").value;
+      const question = document.getElementById("question") ? document.getElementById("question").value : "";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("provider", provider);
+      formData.append("task", task);
+      formData.append("tone", tone);
+      formData.append("detail_level", detail_level);
+      formData.append("language", language);
+      if (task === "qa") formData.append("question", question);
+
+      btn.disabled = true;
+      btn.innerText = "Generating notes...";
+      outputSection.classList.remove("hidden");
+      outputBox.innerHTML = "<p class='text-slate-500 italic'>Reading document and preparing notes... please wait.</p>";
+
+      try {
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          body: formData
+        });
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const data = await response.json();
+          if (!response.ok) {
+            outputBox.innerHTML = "<p class='text-rose-600 font-medium'>Error: " + (data.detail || "Failed to process request") + "</p>";
+          } else {
+            rawResponseText = data.result;
+            outputBox.innerHTML = marked.parse(data.result);
+          }
+        } else {
+          const rawText = await response.text();
+          outputBox.innerHTML = "<p class='text-rose-600 font-medium'>Server Error: " + rawText.substring(0, 300) + "</p>";
+        }
+      } catch (err) {
+        outputBox.innerHTML = "<p class='text-rose-600 font-medium'>Request Error: " + err.message + "</p>";
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Generate Study Notes";
+      }
+    });
+  </script>
+</body>
+</html>
