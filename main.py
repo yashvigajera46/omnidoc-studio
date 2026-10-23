@@ -48,8 +48,10 @@ def call_gemini_with_retry(client, prompt: str, max_retries: int = 4, base_delay
     raise last_exception
 
 
+@app.post("/api/analyze")
 @app.post("/generate-notes")
-async def generate_notes(
+@app.post("/generate")
+async def analyze_content(
     file: Optional[UploadFile] = File(None),
     raw_text: Optional[str] = Form(None),
     provider: str = Form("gemini-flash"),
@@ -100,7 +102,11 @@ async def generate_notes(
         client = genai.Client(api_key=api_key.strip())
         api_response = call_gemini_with_retry(client, full_prompt)
 
-        return {"notes": api_response.text}
+        # Return both keys to support whatever key your frontend JS expects
+        return {
+            "notes": api_response.text,
+            "result": api_response.text
+        }
 
     except Exception as e:
         traceback.print_exc()
@@ -111,6 +117,7 @@ class PDFExportRequest(BaseModel):
     content: str
 
 
+@app.post("/api/export-pdf")
 @app.post("/export-pdf")
 async def export_pdf(data: PDFExportRequest):
     try:
