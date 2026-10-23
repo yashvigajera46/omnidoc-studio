@@ -5,7 +5,6 @@ import traceback
 from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 from google import genai
 from pydantic import BaseModel
@@ -15,22 +14,15 @@ load_dotenv()
 
 app = FastAPI(title="Omnidoc Studio")
 
-# If you serve a static or templates folder:
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
-if os.path.exists("templates"):
-    templates = Jinja2Templates(directory="templates")
-else:
-    templates = None
 
 @app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
+async def read_root():
     if os.path.exists("index.html"):
         with open("index.html", "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
-    elif templates and os.path.exists("templates/index.html"):
-        return templates.TemplateResponse("index.html", {"request": request})
     return HTMLResponse("<h1>Omnidoc Studio is Live</h1>")
 
 
@@ -47,7 +39,6 @@ def call_gemini_with_retry(client, prompt: str, max_retries: int = 4, base_delay
         except Exception as e:
             last_exception = e
             err_msg = str(e)
-            # Retry on 503 high demand or temporary server errors
             if "503" in err_msg or "UNAVAILABLE" in err_msg:
                 time.sleep(delay)
                 delay *= 2
@@ -117,6 +108,7 @@ async def generate_notes(
 
 class PDFExportRequest(BaseModel):
     content: str
+
 
 @app.post("/export-pdf")
 async def export_pdf(data: PDFExportRequest):
